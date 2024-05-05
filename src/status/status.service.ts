@@ -1,28 +1,61 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Order, OrderStatus } from './status.model';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { Order } from './status.model';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { catchError, firstValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
+import { OrderStatus } from './status.constant';
 
 @Injectable()
 export class StatusService {
-  private status: { id: number; status: OrderStatus }[] = [
-    { id: 1, status: OrderStatus.PREPARING },
-    { id: 2, status: OrderStatus.READY },
-    { id: 3, status: OrderStatus.DISPATCHED },
-  ];
+  private controlTowerUrl: string;
+
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
+  ) {
+    this.controlTowerUrl = this.configService.get('CONTROL_TOWER_URL');
+  }
 
   getAllPossibleStatuses(): OrderStatus[] {
     return Object.values(OrderStatus);
   }
 
-  updateStatus(orderId: number, status: OrderStatus): Order {
-    const order = this.status.find((order) => order.id === orderId);
-    if (!order) throw new NotFoundException(`Order ${orderId} not found`);
-    order.status = status;
-    return order;
+  async updateStatus(orderId: number, status: OrderStatus): Promise<Order> {
+    const response = await firstValueFrom(
+      this.httpService
+        .put<Order>(`${this.controlTowerUrl}/order/${orderId}`, { status })
+        .pipe(
+          catchError((error: AxiosError) => {
+            if (error.response?.status === 404) {
+              throw new NotFoundException(`Order ${orderId} not found`);
+            }
+            throw new InternalServerErrorException("Can't get order status");
+          }),
+        ),
+    );
+
+    return response.data;
   }
 
-  getStatusById(orderId: number): Order {
-    const order = this.status.find((order) => order.id === orderId);
-    if (!order) throw new NotFoundException(`Order ${orderId} not found`);
-    return order;
+  async getStatusById(orderId: number): Promise<Order> {
+    const response = await firstValueFrom(
+      this.httpService
+        .get<Order>(`${this.controlTowerUrl}/order/${orderId}`)
+        .pipe(
+          catchError((error: AxiosError) => {
+            if (error.response?.status === 404) {
+              throw new NotFoundException(`Order ${orderId} not found`);
+            }
+            throw new InternalServerErrorException("Can't get order status");
+          }),
+        ),
+    );
+
+    return response.data;
   }
 }

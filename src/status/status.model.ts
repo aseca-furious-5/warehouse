@@ -1,10 +1,5 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
-
-export enum OrderStatus {
-  PREPARING = 'preparing',
-  READY = 'ready',
-  DISPATCHED = 'dispatched',
-}
+import { OrderStatus } from './status.constant';
 
 export class OrderStatusUpdate {
   @IsNotEmpty()
