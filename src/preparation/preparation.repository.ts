@@ -68,7 +68,7 @@ export class PreparationRepository {
       : null;
   }
 
-  async exists(orderId: number): Promise<boolean> {
+  async existsOrderPreparation(orderId: number): Promise<boolean> {
     const result = await this.prismaService.orderPrepration.findFirst({
       where: { orderId },
     });
@@ -112,5 +112,13 @@ export class PreparationRepository {
         quantity: item.quantity,
       })),
     }));
+  }
+
+  async existsItemPreparation(itemPreparationId: number) {
+    const result = await this.prismaService.itemPrepration.findFirst({
+      where: { id: itemPreparationId },
+    });
+
+    return !!result;
   }
 }
