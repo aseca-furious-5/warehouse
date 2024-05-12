@@ -18,7 +18,7 @@ export class PreparationService {
     orderId: number,
     items: ItemPrepInput[],
   ): Promise<OrderPreparation> {
-    if (await this.preparationRepository.exists(orderId)) {
+    if (await this.preparationRepository.existsOrderPreparation(orderId)) {
       throw new ConflictException(
         `Preparation for order with id ${orderId} already exists`,
       );
@@ -47,7 +47,11 @@ export class PreparationService {
   }
 
   private async updateItemReady(itemPreparationId: number, isReady: boolean) {
-    if (!(await this.preparationRepository.exists(itemPreparationId))) {
+    if (
+      !(await this.preparationRepository.existsItemPreparation(
+        itemPreparationId,
+      ))
+    ) {
       throw new NotFoundException(
         `Item preparation with id ${itemPreparationId} not found`,
       );
