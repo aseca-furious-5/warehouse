@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,10 +10,15 @@ import {
   ItemPrepInput,
   OrderPreparation,
 } from './preparation.model';
+import { OrderStatus } from '@prisma/client';
+import { TowerService } from '../tower/tower.service';
 
 @Injectable()
 export class PreparationService {
-  constructor(private readonly preparationRepository: PreparationRepository) {}
+  constructor(
+    private readonly preparationRepository: PreparationRepository,
+    private readonly towerService: TowerService,
+  ) {}
 
   async createPreparation(
     orderId: number,
@@ -65,5 +71,13 @@ export class PreparationService {
 
   async getAllPreparations(): Promise<OrderPreparation[]> {
     return this.preparationRepository.getAllPreparations();
+  }
+
+  async setPreparationStatus(id: number, status: OrderStatus) {
+    const result = await this.preparationRepository.setPreparationStatus(
+      id,
+      status,
+    );
+    await this.towerService.updateStatus(result.orderId, status);
   }
 }

@@ -5,6 +5,7 @@ import {
   OrderPreparation,
 } from './preparation.model';
 import { Inject } from '@nestjs/common';
+import { OrderStatus } from '@prisma/client';
 
 export class PreparationRepository {
   constructor(
@@ -41,6 +42,7 @@ export class PreparationRepository {
         isReady: item.isReady,
         quantity: item.quantity,
       })),
+      status: orderPreparation.status,
     };
   }
 
@@ -64,6 +66,7 @@ export class PreparationRepository {
             isReady: item.isReady,
             quantity: item.quantity,
           })),
+          status: orderPreparation.status,
         }
       : null;
   }
@@ -93,7 +96,7 @@ export class PreparationRepository {
     };
   }
 
-  async getAllPreparations() {
+  async getAllPreparations(): Promise<OrderPreparation[]> {
     const orderPreparations = await this.prismaService.orderPrepration.findMany(
       {
         include: {
@@ -111,6 +114,7 @@ export class PreparationRepository {
         isReady: item.isReady,
         quantity: item.quantity,
       })),
+      status: orderPreparation.status,
     }));
   }
 
@@ -120,5 +124,30 @@ export class PreparationRepository {
     });
 
     return !!result;
+  }
+
+  async setPreparationStatus(
+    id: number,
+    status: OrderStatus,
+  ): Promise<OrderPreparation> {
+    const result = await this.prismaService.orderPrepration.update({
+      where: { id },
+      data: { status },
+      include: {
+        orderItems: true,
+      },
+    });
+
+    return {
+      id: result.id,
+      orderId: result.orderId,
+      items: result.orderItems.map((item) => ({
+        id: item.id,
+        name: item.name,
+        isReady: item.isReady,
+        quantity: item.quantity,
+      })),
+      status: result.status,
+    };
   }
 }

@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty } from 'class-validator';
-import { OrderStatus } from './status.constant';
+import { OrderStatus } from '@prisma/client';
 
 export class OrderStatusUpdate {
   @IsNotEmpty()
