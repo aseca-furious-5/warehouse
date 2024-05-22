@@ -16,6 +16,7 @@ datasource db {
 model OrderPrepration {
   id         Int              @id @default(autoincrement())
   orderId    Int              @unique
+  status     OrderStatus      @default(PREPARING)
   orderItems ItemPrepration[]
 }
 
@@ -28,4 +29,10 @@ model ItemPrepration {
 
   orderPreprationId Int
   orderPrepration   OrderPrepration @relation(fields: [orderPreprationId], references: [id])
+}
+
+enum OrderStatus {
+  PREPARING
+  READY_TO_DISPATCH
+  DISPATCHED
 }

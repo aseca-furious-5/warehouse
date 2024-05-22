@@ -13,6 +13,7 @@ import {
   ItemPrepInput,
   OrderPreparation,
 } from './preparation.model';
+import { OrderStatus } from '@prisma/client';
 
 @Controller('preparation')
 export class PreparationController {
@@ -50,5 +51,13 @@ export class PreparationController {
     @Param('itemPreparationId', ParseIntPipe) itemId: number,
   ): Promise<ItemPreparation> {
     return this.preparationService.setItemNotReady(itemId);
+  }
+
+  @Put(':id/status')
+  async setPreparationStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status') status: OrderStatus,
+  ): Promise<void> {
+    await this.preparationService.setPreparationStatus(id, status);
   }
 }

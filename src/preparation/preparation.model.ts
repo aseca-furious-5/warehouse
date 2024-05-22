@@ -1,9 +1,11 @@
 import { IsInt, IsNotEmpty, IsString } from 'class-validator';
+import { OrderStatus } from '@prisma/client';
 
 export class OrderPreparation {
   id: number;
   orderId: number;
   items: ItemPreparation[];
+  status: OrderStatus;
 }
 
 export class ItemPreparation {

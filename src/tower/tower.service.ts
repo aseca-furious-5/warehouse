@@ -3,15 +3,15 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Order } from './status.model';
+import { Order } from './tower.model';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
-import { OrderStatus } from './status.constant';
+import { OrderStatus } from '@prisma/client';
 
 @Injectable()
-export class StatusService {
+export class TowerService {
   private controlTowerUrl: string;
 
   constructor(
@@ -34,7 +34,7 @@ export class StatusService {
             if (error.response?.status === 404) {
               throw new NotFoundException(`Order ${orderId} not found`);
             }
-            throw new InternalServerErrorException("Can't get order status");
+            throw new InternalServerErrorException("Can't get order tower");
           }),
         ),
     );
@@ -51,7 +51,7 @@ export class StatusService {
             if (error.response?.status === 404) {
               throw new NotFoundException(`Order ${orderId} not found`);
             }
-            throw new InternalServerErrorException("Can't get order status");
+            throw new InternalServerErrorException("Can't get order tower");
           }),
         ),
     );
