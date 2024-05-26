@@ -79,5 +79,8 @@ export class PreparationService {
       status,
     );
     await this.towerService.updateStatus(result.orderId, status);
+    if (status === OrderStatus.DISPATCHED) {
+      await this.towerService.notifyOrderDispatched(result.orderId);
+    }
   }
 }

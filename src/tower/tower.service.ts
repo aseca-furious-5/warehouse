@@ -58,4 +58,11 @@ export class TowerService {
 
     return response.data;
   }
+
+  async notifyOrderDispatched(orderId: number) {
+    await this.httpService.axiosRef.post(
+      `${this.controlTowerUrl}/order/${orderId}/dispatch`,
+      {},
+    );
+  }
 }
